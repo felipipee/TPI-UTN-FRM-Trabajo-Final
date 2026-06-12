@@ -6,12 +6,7 @@ Aplicación de escritorio en Python para gestionar información de países: agre
 
 ---
 
-## Integrantes
-
-| Nombre | Legajo |
-|--------|--------|
-| [Nombre 1] | [Legajo 1] |
-| [Nombre 2] | [Legajo 2] |
+Hecho entre los integrantes del proyecto en conjunto
 
 ---
 
