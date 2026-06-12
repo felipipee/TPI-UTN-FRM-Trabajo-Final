@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoData — Gestión de Países</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --azul:        #0C447C;
+      --azul-med:    #378ADD;
+      --azul-claro:  #B5D4F4;
+      --azul-bg:     #EBF4FD;
+      --bg:          #FFFFFF;
+      --bg-sec:      #F7F8FA;
+      --borde:       #E2E4E9;
+      --texto:       #111827;
+      --muted:       #6B7280;
+      --verde:       #16A34A;
+      --rojo:        #DC2626;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--texto);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ─────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--borde);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 56px;
+    }
+    .nav-logo {
+      font-size: 1.1rem; font-weight: 700; color: var(--azul);
+      display: flex; align-items: center; gap: .5rem; text-decoration: none;
+    }
+    .nav-logo span { color: var(--muted); font-weight: 400; font-size: .9rem; }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      font-size: .9rem; color: var(--muted); text-decoration: none;
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--azul); }
+    .nav-cta {
+      background: var(--azul); color: #fff !important;
+      padding: .4rem 1rem; border-radius: 6px;
+      font-weight: 500; transition: background .15s !important;
+    }
+    .nav-cta:hover { background: var(--azul-med) !important; color: #fff !important; }
+
+    /* ── HERO ────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(155deg, var(--azul) 0%, #1A5A94 55%, #0a3460 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 7rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 110%, rgba(55,138,221,.35) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+      color: var(--azul-claro); font-size: .8rem; font-weight: 500;
+      padding: .35rem .9rem; border-radius: 99px;
+      margin-bottom: 1.5rem; position: relative;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800; color: #fff;
+      line-height: 1.05; letter-spacing: -.03em;
+      position: relative; margin-bottom: 1.2rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, #7EC8F4, #B5D4F4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: 1.15rem; color: rgba(255,255,255,.72);
+      max-width: 520px; line-height: 1.65;
+      position: relative; margin-bottom: 2.5rem;
+    }
+    .hero-btns {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      justify-content: center; position: relative;
+    }
+    .btn-primary {
+      background: #fff; color: var(--azul);
+      font-size: .95rem; font-weight: 600;
+      padding: .75rem 1.75rem; border-radius: 8px;
+      text-decoration: none; transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 16px rgba(0,0,0,.18);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.22); }
+    .btn-outline {
+      background: transparent; color: #fff;
+      border: 1.5px solid rgba(255,255,255,.4);
+      font-size: .95rem; font-weight: 500;
+      padding: .75rem 1.75rem; border-radius: 8px;
+      text-decoration: none; transition: border-color .15s, background .15s;
+    }
+    .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,.08); }
+
+    .hero-stats {
+      display: flex; gap: 3rem; flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 4rem; position: relative;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-n {
+      font-size: 2.2rem; font-weight: 800; color: #fff; line-height: 1;
+    }
+    .hero-stat-l { font-size: .8rem; color: rgba(255,255,255,.55); margin-top: .3rem; }
+
+    /* ── SECCIÓN GENÉRICA ────────────────── */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .section-label {
+      font-size: .75rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--azul-med);
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 800; letter-spacing: -.02em; line-height: 1.15;
+      color: var(--texto); margin-bottom: 1rem;
+    }
+    .section-sub {
+      font-size: 1.05rem; color: var(--muted);
+      max-width: 560px; line-height: 1.65;
+    }
+
+    /* ── FEATURES ────────────────────────── */
+    .features-bg { background: var(--bg-sec); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem; margin-top: 3rem;
+    }
+    .feat-card {
+      background: #fff; border: 1px solid var(--borde);
+      border-radius: 12px; padding: 1.5rem;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .feat-card:hover { box-shadow: 0 8px 32px rgba(12,68,124,.1); transform: translateY(-3px); }
+    .feat-icon {
+      width: 44px; height: 44px; background: var(--azul-bg);
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 1.3rem; margin-bottom: 1rem;
+    }
+    .feat-title { font-size: 1rem; font-weight: 600; margin-bottom: .4rem; }
+    .feat-desc { font-size: .9rem; color: var(--muted); line-height: 1.55; }
+
+    /* ── TECH STACK ──────────────────────── */
+    .tech-list {
+      display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 2rem;
+    }
+    .tech-pill {
+      background: var(--bg-sec); border: 1px solid var(--borde);
+      border-radius: 99px; padding: .4rem 1rem;
+      font-size: .85rem; font-weight: 500; color: var(--texto);
+      display: flex; align-items: center; gap: .4rem;
+    }
+
+    /* ── DEMO ────────────────────────────── */
+    .demo-section { background: var(--bg); }
+    .demo-wrapper {
+      margin-top: 2.5rem;
+      border: 1px solid var(--borde); border-radius: 14px;
+      overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,.07);
+    }
+
+    /* Demo toolbar */
+    .demo-toolbar {
+      background: var(--azul); padding: .8rem 1.2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: .6rem;
+    }
+    .demo-toolbar-left { display: flex; align-items: center; gap: .6rem; }
+    .demo-title-bar { color: #fff; font-size: .85rem; font-weight: 600; }
+    .demo-toolbar-right { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+
+    /* Demo search */
+    .demo-search-wrap {
+      background: var(--bg-sec); border-bottom: 1px solid var(--borde);
+      padding: .6rem 1.2rem; display: flex; align-items: center; gap: .6rem;
+    }
+    .demo-search {
+      flex: 1; border: none; background: transparent;
+      font-family: 'Inter', sans-serif; font-size: .9rem;
+      color: var(--texto); outline: none;
+    }
+    .demo-search::placeholder { color: var(--muted); }
+
+    /* Chips */
+    .demo-chips {
+      background: #fff; border-bottom: 1px solid var(--borde);
+      padding: .5rem 1.2rem; display: flex; align-items: center;
+      gap: .4rem; flex-wrap: wrap;
+    }
+    .chip-label { font-size: .78rem; color: var(--muted); margin-right: .2rem; white-space: nowrap; }
+    .chip {
+      border: 1px solid var(--borde); border-radius: 99px;
+      padding: .25rem .75rem; font-size: .78rem; font-weight: 500;
+      cursor: pointer; transition: all .15s;
+      background: var(--bg-sec); color: var(--muted);
+    }
+    .chip.active { background: var(--azul); color: #fff; border-color: var(--azul); }
+    .chip:hover:not(.active) { border-color: var(--azul-med); color: var(--azul); }
+
+    /* Table */
+    .demo-table-wrap { overflow-x: auto; }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: .875rem;
+    }
+    thead tr { background: var(--bg-sec); }
+    th {
+      padding: .7rem 1rem; text-align: left;
+      font-size: .78rem; font-weight: 600; letter-spacing: .04em;
+      text-transform: uppercase; color: var(--muted);
+      white-space: nowrap; user-select: none;
+    }
+    th.sortable { cursor: pointer; }
+    th.sortable:hover { color: var(--azul); }
+    th .sort-arrow { margin-left: .3rem; opacity: .4; }
+    th.asc .sort-arrow::after { content: '↑'; opacity: 1; color: var(--azul); }
+    th.desc .sort-arrow::after { content: '↓'; opacity: 1; color: var(--azul); }
+    th:not(.asc):not(.desc) .sort-arrow::after { content: '⇅'; }
+    tbody tr {
+      border-top: 1px solid var(--borde);
+      transition: background .1s;
+    }
+    tbody tr:hover { background: var(--azul-bg); }
+    td { padding: .7rem 1rem; color: var(--texto); }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .continente-badge {
+      display: inline-block; padding: .2rem .6rem;
+      border-radius: 99px; font-size: .75rem; font-weight: 500;
+    }
+    .c-america  { background: #ECFDF5; color: #065F46; }
+    .c-europa   { background: #EFF6FF; color: #1E40AF; }
+    .c-asia     { background: #FFF7ED; color: #9A3412; }
+    .c-africa   { background: #FEF9C3; color: #713F12; }
+    .c-oceania  { background: #F5F3FF; color: #5B21B6; }
+
+    /* Demo footer stats */
+    .demo-footer {
+      background: var(--bg-sec); border-top: 1px solid var(--borde);
+      padding: .6rem 1.2rem; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+    }
+    .demo-count { font-size: .8rem; color: var(--muted); }
+    .demo-sort-info { font-size: .8rem; color: var(--azul-med); font-weight: 500; }
+
+    /* Demo buttons */
+    .btn-demo {
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+      color: #fff; font-size: .78rem; font-weight: 500;
+      padding: .3rem .8rem; border-radius: 6px;
+      cursor: pointer; transition: background .15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-demo:hover { background: rgba(255,255,255,.25); }
+    .btn-demo.accent { background: #fff; color: var(--azul); }
+    .btn-demo.accent:hover { background: var(--azul-claro); }
+
+    /* Stats modal */
+    .stats-panel {
+      display: none;
+      background: var(--bg-sec); border-top: 1px solid var(--borde);
+      padding: 1.2rem 1.5rem;
+      animation: fadeIn .2s ease;
+    }
+    .stats-panel.open { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; } }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .stat-card {
+      background: #fff; border: 1px solid var(--borde);
+      border-radius: 10px; padding: 1rem 1.2rem;
+    }
+    .stat-card-label { font-size: .75rem; color: var(--muted); margin-bottom: .35rem; }
+    .stat-card-val { font-size: 1.2rem; font-weight: 700; color: var(--texto); }
+    .stat-card-sub { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+
+    /* Add form */
+    .add-panel {
+      display: none;
+      background: var(--azul-bg); border-top: 1px solid var(--borde);
+      padding: 1.2rem 1.5rem;
+      animation: fadeIn .2s ease;
+    }
+    .add-panel.open { display: block; }
+    .add-form {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1.2fr 1.4fr auto;
+      gap: .6rem; align-items: end;
+    }
+    .add-form label { font-size: .75rem; color: var(--muted); display: block; margin-bottom: .25rem; }
+    .add-form input, .add-form select {
+      width: 100%; padding: .45rem .7rem;
+      border: 1px solid var(--borde); border-radius: 6px;
+      font-family: 'Inter', sans-serif; font-size: .85rem;
+      background: #fff; color: var(--texto); outline: none;
+      transition: border-color .15s;
+    }
+    .add-form input:focus, .add-form select:focus { border-color: var(--azul); }
+    .btn-add {
+      background: var(--azul); color: #fff;
+      border: none; border-radius: 6px;
+      padding: .5rem 1rem; font-size: .85rem; font-weight: 600;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: background .15s; white-space: nowrap;
+    }
+    .btn-add:hover { background: var(--azul-med); }
+    .add-error { font-size: .8rem; color: var(--rojo); margin-top: .5rem; min-height: 1.1rem; }
+
+    /* ── CÓDIGO ──────────────────────────── */
+    .code-section { background: var(--bg-sec); }
+    .code-block {
+      background: #0f1623; border-radius: 12px;
+      padding: 1.5rem; overflow-x: auto;
+      font-family: 'Courier New', monospace; font-size: .82rem;
+      line-height: 1.7; color: #cdd6f4;
+      margin-top: 2rem;
+    }
+    .tok-kw   { color: #89b4fa; }
+    .tok-fn   { color: #89dceb; }
+    .tok-str  { color: #a6e3a1; }
+    .tok-cm   { color: #585b70; font-style: italic; }
+    .tok-num  { color: #fab387; }
+
+    /* ── EQUIPO ──────────────────────────── */
+    .team-grid {
+      display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 2rem;
+    }
+    .team-card {
+      background: #fff; border: 1px solid var(--borde);
+      border-radius: 12px; padding: 1.5rem 2rem;
+      display: flex; align-items: center; gap: 1rem;
+      flex: 1; min-width: 240px;
+    }
+    .team-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--azul); color: #fff;
+      font-size: 1.3rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .team-name { font-weight: 600; font-size: 1rem; }
+    .team-role { font-size: .85rem; color: var(--muted); margin-top: .15rem; }
+
+    /* ── FOOTER ──────────────────────────── */
+    footer {
+      background: var(--azul); color: rgba(255,255,255,.7);
+      text-align: center; padding: 2rem;
+      font-size: .85rem;
+    }
+    footer strong { color: #fff; }
+    footer a { color: var(--azul-claro); text-decoration: none; }
+
+    /* ── EMPTY STATE ─────────────────────── */
+    .empty-row td {
+      text-align: center; padding: 2.5rem;
+      color: var(--muted); font-size: .9rem;
+    }
+
+    /* ── RESPONSIVE ──────────────────────── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hero-stats { gap: 1.5rem; }
+      .add-form { grid-template-columns: 1fr 1fr; }
+      .add-form .btn-add-wrap { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">🌍 GeoData <span>TPI · UTN</span></a>
+  <div class="nav-links">
+    <a href="#features">Funciones</a>
+    <a href="#demo">Demo</a>
+    <a href="#codigo">Código</a>
+    <a href="#equipo">Equipo</a>
+    <a href="https://github.com" target="_blank" class="nav-cta">Ver en GitHub</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🎓 Programación 1 · UTN · 2025</div>
+  <h1>Gestión de<br><em>datos de países</em></h1>
+  <p class="hero-sub">
+    Aplicación de escritorio en Python con interfaz gráfica para filtrar,
+    ordenar y analizar un dataset de países en tiempo real.
+  </p>
+  <div class="hero-btns">
+    <a href="#demo" class="btn-primary">Probar demo →</a>
+    <a href="https://github.com" target="_blank" class="btn-outline">GitHub</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-n">19</div>
+      <div class="hero-stat-l">países en el dataset</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-n">5</div>
+      <div class="hero-stat-l">continentes</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-n">7</div>
+      <div class="hero-stat-l">módulos Python</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-n">2</div>
+      <div class="hero-stat-l">archivos de código</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-bg" id="features">
+  <div class="container">
+    <div class="section-label">Funcionalidades</div>
+    <h2 class="section-title">Todo lo que hace la app</h2>
+    <p class="section-sub">Desarrollada con Python 3 y customtkinter, cumple todos los requerimientos del TPI.</p>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🔍</div>
+        <div class="feat-title">Búsqueda en tiempo real</div>
+        <div class="feat-desc">Filtrá por nombre con coincidencia parcial o exacta mientras escribís, sin botones.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⚙️</div>
+        <div class="feat-title">Filtros combinados</div>
+        <div class="feat-desc">Filtrá por continente, rango de población y rango de superficie simultáneamente.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">↕️</div>
+        <div class="feat-title">Ordenamiento Burbuja</div>
+        <div class="feat-desc">Ordená por nombre, población o superficie (asc/desc) sin sorted() ni lambda.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📊</div>
+        <div class="feat-title">Estadísticas</div>
+        <div class="feat-desc">Máximos, mínimos, promedios y cantidad de países por continente calculados manualmente.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📝</div>
+        <div class="feat-title">CRUD completo</div>
+        <div class="feat-desc">Agregar, editar y eliminar países con validación de campos y control de duplicados.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📂</div>
+        <div class="feat-title">Importar / Exportar CSV</div>
+        <div class="feat-desc">Cargá cualquier CSV compatible o exportá el dataset actual con un clic.</div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:3rem">Stack técnico</div>
+    <div class="tech-list">
+      <div class="tech-pill">🐍 Python 3</div>
+      <div class="tech-pill">🖼 customtkinter</div>
+      <div class="tech-pill">📋 tkinter.ttk</div>
+      <div class="tech-pill">📁 csv</div>
+      <div class="tech-pill">💬 tkinter.messagebox</div>
+      <div class="tech-pill">🗂 tkinter.filedialog</div>
+      <div class="tech-pill">🗃 os.path</div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section class="demo-section" id="demo">
+  <div class="container">
+    <div class="section-label">Demo interactiva</div>
+    <h2 class="section-title">Probá la lógica del TPI</h2>
+    <p class="section-sub">
+      La misma lógica de <code style="background:var(--bg-sec);padding:.1rem .4rem;border-radius:4px;font-size:.9em">funciones.py</code>
+      reescrita en JavaScript. Buscá, filtrá, ordená y agregá países.
+    </p>
+  </div>
+
+  <div class="container" style="margin-top: 0;">
+    <div class="demo-wrapper">
+
+      <!-- Toolbar -->
+      <div class="demo-toolbar">
+        <div class="demo-toolbar-left">
+          <span style="font-size:1rem">🌍</span>
+          <span class="demo-title-bar">GeoData — Dataset en vivo</span>
+        </div>
+        <div class="demo-toolbar-right">
+          <button class="btn-demo" id="btn-stats">📊 Estadísticas</button>
+          <button class="btn-demo accent" id="btn-add-toggle">+ Agregar país</button>
+        </div>
+      </div>
+
+      <!-- Add form panel -->
+      <div class="add-panel" id="add-panel">
+        <div class="add-form">
+          <div>
+            <label>Nombre del país</label>
+            <input type="text" id="inp-nombre" placeholder="ej: Portugal" />
+          </div>
+          <div>
+            <label>Población (hab.)</label>
+            <input type="number" id="inp-pob" placeholder="ej: 10000000" />
+          </div>
+          <div>
+            <label>Superficie (km²)</label>
+            <input type="number" id="inp-sup" placeholder="ej: 92212" />
+          </div>
+          <div>
+            <label>Continente</label>
+            <select id="inp-cont">
+              <option value="">Seleccioná</option>
+              <option>América</option>
+              <option>Europa</option>
+              <option>Asia</option>
+              <option>África</option>
+              <option>Oceanía</option>
+            </select>
+          </div>
+          <div class="btn-add-wrap" style="padding-bottom:0">
+            <button class="btn-add" id="btn-guardar">Guardar</button>
+          </div>
+        </div>
+        <div class="add-error" id="add-error"></div>
+      </div>
+
+      <!-- Stats panel -->
+      <div class="stats-panel" id="stats-panel">
+        <div class="stats-grid" id="stats-grid"></div>
+      </div>
+
+      <!-- Search -->
+      <div class="demo-search-wrap">
+        <span style="color:var(--muted)">🔍</span>
+        <input class="demo-search" id="search-input"
+               placeholder="Buscar por nombre (parcial o exacto)..." />
+      </div>
+
+      <!-- Chips -->
+      <div class="demo-chips">
+        <span class="chip-label">Continente:</span>
+        <button class="chip active" data-cont="Todos">Todos</button>
+        <button class="chip" data-cont="América">América</button>
+        <button class="chip" data-cont="Europa">Europa</button>
+        <button class="chip" data-cont="Asia">Asia</button>
+        <button class="chip" data-cont="África">África</button>
+        <button class="chip" data-cont="Oceanía">Oceanía</button>
+      </div>
+
+      <!-- Table -->
+      <div class="demo-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="sortable" data-col="nombre">Nombre <span class="sort-arrow"></span></th>
+              <th>Continente</th>
+              <th class="sortable num" data-col="poblacion">Población <span class="sort-arrow"></span></th>
+              <th class="sortable num" data-col="superficie">Superficie km² <span class="sort-arrow"></span></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabla-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Footer -->
+      <div class="demo-footer">
+        <span class="demo-count" id="demo-count"></span>
+        <span class="demo-sort-info" id="demo-sort-info"></span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CÓDIGO -->
+<section class="code-section" id="codigo">
+  <div class="container">
+    <div class="section-label">Código fuente</div>
+    <h2 class="section-title">Fragmentos clave del proyecto</h2>
+    <p class="section-sub">Ordenamiento de burbuja y estadísticas implementados sin lambdas ni built-ins.</p>
+
+    <div class="code-block"><pre><span class="tok-cm"># funciones.py — Algoritmo de burbuja sin lambda</span>
+
+<span class="tok-kw">def</span> <span class="tok-fn">_clave_orden</span>(pais, campo):
+    <span class="tok-str">"""Devuelve el valor de comparación según el campo."""</span>
+    <span class="tok-kw">if</span> campo == <span class="tok-str">"nombre"</span>:
+        <span class="tok-kw">return</span> pais[<span class="tok-str">"nombre"</span>].lower()
+    <span class="tok-kw">return</span> pais[campo]
+
+
+<span class="tok-kw">def</span> <span class="tok-fn">ordenar_paises</span>(paises, campo, ascendente=<span class="tok-kw">True</span>):
+    <span class="tok-str">"""Bubble sort sin sorted() ni lambda."""</span>
+    resultado = paises[:]            <span class="tok-cm"># copia, no modifica el original</span>
+    n = len(resultado)
+    <span class="tok-kw">for</span> i <span class="tok-kw">in</span> range(n - <span class="tok-num">1</span>):
+        <span class="tok-kw">for</span> j <span class="tok-kw">in</span> range(n - i - <span class="tok-num">1</span>):
+            val_a = _clave_orden(resultado[j],     campo)
+            val_b = _clave_orden(resultado[j + <span class="tok-num">1</span>], campo)
+            intercambiar = val_a > val_b <span class="tok-kw">if</span> ascendente <span class="tok-kw">else</span> val_a < val_b
+            <span class="tok-kw">if</span> intercambiar:
+                resultado[j], resultado[j+<span class="tok-num">1</span>] = resultado[j+<span class="tok-num">1</span>], resultado[j]
+    <span class="tok-kw">return</span> resultado
+
+
+<span class="tok-cm"># Estadísticas sin max() / min() con key=</span>
+<span class="tok-kw">def</span> <span class="tok-fn">calcular_estadisticas</span>(paises):
+    total_pob, total_sup = <span class="tok-num">0</span>, <span class="tok-num">0</span>
+    mayor = menor = paises[<span class="tok-num">0</span>]
+    <span class="tok-kw">for</span> p <span class="tok-kw">in</span> paises:
+        total_pob += p[<span class="tok-str">"poblacion"</span>]
+        total_sup += p[<span class="tok-str">"superficie"</span>]
+        <span class="tok-kw">if</span> p[<span class="tok-str">"poblacion"</span>] > mayor[<span class="tok-str">"poblacion"</span>]: mayor = p
+        <span class="tok-kw">if</span> p[<span class="tok-str">"poblacion"</span>] < menor[<span class="tok-str">"poblacion"</span>]: menor = p
+    <span class="tok-kw">return</span> {
+        <span class="tok-str">"total"</span>:     len(paises),
+        <span class="tok-str">"mayor_pob"</span>: mayor,
+        <span class="tok-str">"menor_pob"</span>: menor,
+        <span class="tok-str">"prom_pob"</span>:  total_pob // len(paises),
+        <span class="tok-str">"prom_sup"</span>:  total_sup // len(paises),
+    }</pre></div>
+  </div>
+</section>
+
+<!-- EQUIPO -->
+<section id="equipo">
+  <div class="container">
+    <div class="section-label">Integrantes</div>
+    <h2 class="section-title">El equipo</h2>
+    <p class="section-sub">Trabajo en equipo de 2 personas — Tecnicatura en Programación, UTN 2025.</p>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">F</div>
+        <div>
+          <div class="team-name">Felipe</div>
+          <div class="team-role">Lógica de datos · funciones.py</div>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">M</div>
+        <div>
+          <div class="team-name">Matías</div>
+          <div class="team-role">Interfaz gráfica · main.py</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>GeoData</strong> — TPI Programación 1 · UTN · 2025</p>
+  <p style="margin-top:.5rem">
+    <a href="https://github.com" target="_blank">GitHub</a> ·
+    <a href="https://youtube.com" target="_blank">Video demo</a>
+  </p>
+</footer>
+
+<script>
+// ─────────────────────────────────────────────
+//  DATASET (mismo que paises.csv)
+// ─────────────────────────────────────────────
+const DATASET_BASE = [
+  { nombre: "Argentina",    poblacion: 45376763,    superficie: 2780400,  continente: "América" },
+  { nombre: "Brasil",       poblacion: 213993437,   superficie: 8515767,  continente: "América" },
+  { nombre: "Chile",        poblacion: 19116201,    superficie: 756102,   continente: "América" },
+  { nombre: "México",       poblacion: 126014024,   superficie: 1964375,  continente: "América" },
+  { nombre: "Colombia",     poblacion: 51049498,    superficie: 1141748,  continente: "América" },
+  { nombre: "Canadá",       poblacion: 38005238,    superficie: 9984670,  continente: "América" },
+  { nombre: "Alemania",     poblacion: 83149300,    superficie: 357022,   continente: "Europa"  },
+  { nombre: "Francia",      poblacion: 67413000,    superficie: 551695,   continente: "Europa"  },
+  { nombre: "España",       poblacion: 47415750,    superficie: 505990,   continente: "Europa"  },
+  { nombre: "Italia",       poblacion: 60367477,    superficie: 301340,   continente: "Europa"  },
+  { nombre: "Reino Unido",  poblacion: 67886011,    superficie: 243610,   continente: "Europa"  },
+  { nombre: "Rusia",        poblacion: 145934462,   superficie: 17098242, continente: "Europa"  },
+  { nombre: "Japón",        poblacion: 125800000,   superficie: 377975,   continente: "Asia"    },
+  { nombre: "China",        poblacion: 1412600000,  superficie: 9596960,  continente: "Asia"    },
+  { nombre: "India",        poblacion: 1380004385,  superficie: 3287263,  continente: "Asia"    },
+  { nombre: "Australia",    poblacion: 25499884,    superficie: 7692024,  continente: "Oceanía" },
+  { nombre: "Nigeria",      poblacion: 218541212,   superficie: 923768,   continente: "África"  },
+  { nombre: "Sudáfrica",    poblacion: 60041994,    superficie: 1219090,  continente: "África"  },
+  { nombre: "Egipto",       poblacion: 102334404,   superficie: 1010408,  continente: "África"  },
+];
+
+let paises = DATASET_BASE.map(p => ({ ...p }));
+let busqueda = "";
+let continente = "Todos";
+let orden = { campo: "nombre", asc: true };
+
+// ─────────────────────────────────────────────
+//  LÓGICA (equivalente a funciones.py)
+// ─────────────────────────────────────────────
+
+function formatNum(n) {
+  return n.toLocaleString("es-AR");
+}
+
+function claveOrden(p, campo) {
+  if (campo === "nombre") return p.nombre.toLowerCase();
+  return p[campo];
+}
+
+function bubbleSort(arr, campo, asc) {
+  const r = arr.slice();
+  const n = r.length;
+  for (let i = 0; i < n - 1; i++) {
+    for (let j = 0; j < n - i - 1; j++) {
+      const a = claveOrden(r[j],   campo);
+      const b = claveOrden(r[j+1], campo);
+      const swap = asc ? a > b : a < b;
+      if (swap) { const tmp = r[j]; r[j] = r[j+1]; r[j+1] = tmp; }
+    }
+  }
+  return r;
+}
+
+function aplicarFiltros() {
+  let r = paises.slice();
+  if (continente !== "Todos") r = r.filter(p => p.continente === continente);
+  if (busqueda) r = r.filter(p => p.nombre.toLowerCase().includes(busqueda.toLowerCase()));
+  return bubbleSort(r, orden.campo, orden.asc);
+}
+
+function calcStats() {
+  if (!paises.length) return null;
+  let totalPob = 0, totalSup = 0;
+  let mayorPob = paises[0], menorPob = paises[0];
+  let mayorSup = paises[0], menorSup = paises[0];
+  const conteo = {};
+  for (const p of paises) {
+    totalPob += p.poblacion; totalSup += p.superficie;
+    if (p.poblacion > mayorPob.poblacion) mayorPob = p;
+    if (p.poblacion < menorPob.poblacion) menorPob = p;
+    if (p.superficie > mayorSup.superficie) mayorSup = p;
+    if (p.superficie < menorSup.superficie) menorSup = p;
+    conteo[p.continente] = (conteo[p.continente] || 0) + 1;
+  }
+  return { totalPob, totalSup, mayorPob, menorPob, mayorSup, menorSup, conteo, total: paises.length };
+}
+
+// ─────────────────────────────────────────────
+//  RENDER
+// ─────────────────────────────────────────────
+
+const CONT_CLASS = {
+  "América": "c-america", "Europa": "c-europa",
+  "Asia": "c-asia", "África": "c-africa", "Oceanía": "c-oceania"
+};
+
+function render() {
+  const datos = aplicarFiltros();
+  const tbody = document.getElementById("tabla-body");
+  const total = paises.length;
+
+  if (!datos.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Sin resultados para la búsqueda actual.</td></tr>`;
+  } else {
+    tbody.innerHTML = datos.map(p => `
+      <tr>
+        <td>${p.nombre}</td>
+        <td><span class="continente-badge ${CONT_CLASS[p.continente] || ''}">${p.continente}</span></td>
+        <td class="num">${formatNum(p.poblacion)}</td>
+        <td class="num">${formatNum(p.superficie)}</td>
+        <td style="text-align:center">
+          <button onclick="eliminar('${p.nombre}')"
+            style="background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--muted)"
+            title="Eliminar">🗑</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  document.getElementById("demo-count").textContent =
+    datos.length !== total
+      ? `Mostrando ${datos.length} de ${total} países`
+      : `${total} países`;
+
+  const dir = orden.asc ? "↑" : "↓";
+  document.getElementById("demo-sort-info").textContent =
+    `Orden: ${orden.campo} ${dir}`;
+
+  // Update sort headers
+  document.querySelectorAll("th.sortable").forEach(th => {
+    th.classList.remove("asc", "desc");
+    if (th.dataset.col === orden.campo) th.classList.add(orden.asc ? "asc" : "desc");
+  });
+}
+
+function renderStats() {
+  const s = calcStats();
+  if (!s) return;
+  const grid = document.getElementById("stats-grid");
+  const contRows = Object.entries(s.conteo)
+    .sort((a,b) => b[1] - a[1])
+    .map(([c, n]) => `<div class="stat-card">
+      <div class="stat-card-label">${c}</div>
+      <div class="stat-card-val">${n}</div>
+      <div class="stat-card-sub">país${n > 1 ? 'es' : ''}</div>
+    </div>`).join("");
+
+  grid.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card-label">Total países</div>
+      <div class="stat-card-val">${s.total}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Promedio población</div>
+      <div class="stat-card-val">${formatNum(Math.floor(s.totalPob / s.total))}</div>
+      <div class="stat-card-sub">habitantes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Mayor población</div>
+      <div class="stat-card-val">${s.mayorPob.nombre}</div>
+      <div class="stat-card-sub">${formatNum(s.mayorPob.poblacion)} hab.</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Menor población</div>
+      <div class="stat-card-val">${s.menorPob.nombre}</div>
+      <div class="stat-card-sub">${formatNum(s.menorPob.poblacion)} hab.</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Mayor superficie</div>
+      <div class="stat-card-val">${s.mayorSup.nombre}</div>
+      <div class="stat-card-sub">${formatNum(s.mayorSup.superficie)} km²</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Menor superficie</div>
+      <div class="stat-card-val">${s.menorSup.nombre}</div>
+      <div class="stat-card-sub">${formatNum(s.menorSup.superficie)} km²</div>
+    </div>
+    ${contRows}
+  `;
+}
+
+// ─────────────────────────────────────────────
+//  EVENTOS
+// ─────────────────────────────────────────────
+
+document.getElementById("search-input").addEventListener("input", e => {
+  busqueda = e.target.value;
+  render();
+});
+
+document.querySelectorAll(".chip").forEach(btn => {
+  btn.addEventListener("click", () => {
+    continente = btn.dataset.cont;
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    render();
+  });
+});
+
+document.querySelectorAll("th.sortable").forEach(th => {
+  th.addEventListener("click", () => {
+    const col = th.dataset.col;
+    if (orden.campo === col) {
+      orden.asc = !orden.asc;
+    } else {
+      orden.campo = col;
+      orden.asc = true;
+    }
+    render();
+  });
+});
+
+// Stats panel toggle
+document.getElementById("btn-stats").addEventListener("click", () => {
+  const panel = document.getElementById("stats-panel");
+  const isOpen = panel.classList.toggle("open");
+  if (isOpen) { renderStats(); }
+  // cerrar add si estaba abierto
+  document.getElementById("add-panel").classList.remove("open");
+});
+
+// Add panel toggle
+document.getElementById("btn-add-toggle").addEventListener("click", () => {
+  const panel = document.getElementById("add-panel");
+  panel.classList.toggle("open");
+  document.getElementById("stats-panel").classList.remove("open");
+  document.getElementById("add-error").textContent = "";
+});
+
+// Guardar nuevo país
+document.getElementById("btn-guardar").addEventListener("click", () => {
+  const nombre    = document.getElementById("inp-nombre").value.trim();
+  const pobStr    = document.getElementById("inp-pob").value.trim();
+  const supStr    = document.getElementById("inp-sup").value.trim();
+  const cont      = document.getElementById("inp-cont").value;
+  const errEl     = document.getElementById("add-error");
+
+  if (!nombre || !pobStr || !supStr || !cont) {
+    errEl.textContent = "Todos los campos son obligatorios."; return;
+  }
+  const pob = parseInt(pobStr), sup = parseInt(supStr);
+  if (isNaN(pob) || isNaN(sup) || pob <= 0 || sup <= 0) {
+    errEl.textContent = "Población y superficie deben ser números enteros mayores a 0."; return;
+  }
+  const dup = paises.some(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+  if (dup) {
+    errEl.textContent = `Ya existe un país llamado «${nombre}».`; return;
+  }
+
+  paises.push({ nombre, poblacion: pob, superficie: sup, continente: cont });
+  errEl.textContent = "";
+  document.getElementById("inp-nombre").value = "";
+  document.getElementById("inp-pob").value    = "";
+  document.getElementById("inp-sup").value    = "";
+  document.getElementById("inp-cont").value   = "";
+  document.getElementById("add-panel").classList.remove("open");
+  render();
+});
+
+// Eliminar
+function eliminar(nombre) {
+  if (!confirm(`¿Eliminás a «${nombre}» del dataset?`)) return;
+  paises = paises.filter(p => p.nombre !== nombre);
+  render();
+}
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
