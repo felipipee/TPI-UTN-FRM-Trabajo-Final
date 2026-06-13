@@ -70,7 +70,7 @@ class VentanaPais(ctk.CTkToplevel):
         self.pais_original = pais
         titulo = "Editar país" if pais else "Agregar país"
         self.title(titulo)
-        self.geometry("400x380")
+        self.geometry("400x460")
         self.resizable(False, False)
         self.grab_set()
         self.configure(fg_color=BG_MAIN)
@@ -493,9 +493,9 @@ class App(ctk.CTk):
         logo_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
         logo_frame.grid(row=0, column=0, sticky="ew", padx=14, pady=(18, 12))
         ctk.CTkLabel(logo_frame, text="🌍  GeoData", font=("Helvetica", 15, "bold"),
-                        text_color="white").pack(anchor="w")
+                     text_color="white").pack(anchor="w")
         ctk.CTkLabel(logo_frame, text="Gestión de Países", font=("Helvetica", 10),
-                        text_color=AZUL_CLARO).pack(anchor="w")
+                     text_color=AZUL_CLARO).pack(anchor="w")
 
         sep = ctk.CTkFrame(sidebar, fg_color="white", height=1, bg_color=AZUL_OSCURO)
         sep.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 8))
@@ -524,7 +524,7 @@ class App(ctk.CTk):
 
         for seccion_titulo, items in secciones:
             ctk.CTkLabel(nav, text=seccion_titulo.upper(), font=("Helvetica", 9),
-                            text_color=AZUL_CLARO).pack(anchor="w", padx=6, pady=(10, 2))
+                         text_color=AZUL_CLARO).pack(anchor="w", padx=6, pady=(10, 2))
             for key, texto, comando in items:
                 btn = ctk.CTkButton(
                     nav, text=texto, anchor="w", font=("Helvetica", 12),
@@ -538,7 +538,7 @@ class App(ctk.CTk):
         footer = ctk.CTkFrame(sidebar, fg_color="transparent")
         footer.grid(row=3, column=0, sticky="ew", padx=14, pady=12)
         ctk.CTkLabel(footer, text="UTN — Programación 1", font=("Helvetica", 9),
-                        text_color=AZUL_CLARO).pack(anchor="w")
+                     text_color=AZUL_CLARO).pack(anchor="w")
 
     def _construir_main(self):
         self.main = ctk.CTkFrame(self, fg_color=BG_MAIN, corner_radius=0)
@@ -606,12 +606,12 @@ class App(ctk.CTk):
             card = ctk.CTkFrame(self.stats_frame, fg_color=BG_SEC, corner_radius=8)
             card.grid(row=0, column=i, sticky="ew", padx=(0 if i == 0 else 6, 0))
             ctk.CTkLabel(card, text=label, font=("Helvetica", 10),
-                            text_color=TEXTO_MUTED).pack(anchor="w", padx=12, pady=(10, 2))
+                         text_color=TEXTO_MUTED).pack(anchor="w", padx=12, pady=(10, 2))
             lbl_val = ctk.CTkLabel(card, text=val,
-                                font=("Helvetica", 18, "bold"), text_color=TEXTO)
+                                   font=("Helvetica", 18, "bold"), text_color=TEXTO)
             lbl_val.pack(anchor="w", padx=12)
             lbl_sub = ctk.CTkLabel(card, text=sub,
-                                font=("Helvetica", 10), text_color=TEXTO_MUTED)
+                                   font=("Helvetica", 10), text_color=TEXTO_MUTED)
             lbl_sub.pack(anchor="w", padx=12, pady=(0, 10))
             self.stat_cards[key] = (lbl_val, lbl_sub)
 
@@ -622,7 +622,7 @@ class App(ctk.CTk):
         search_frame.grid_columnconfigure(1, weight=1)
 
         ctk.CTkLabel(search_frame, text="🔍",
-                    font=("Helvetica", 14)).grid(row=0, column=0, padx=(14, 6), pady=10)
+                     font=("Helvetica", 14)).grid(row=0, column=0, padx=(14, 6), pady=10)
         self.search_var = ctk.StringVar()
         self.search_var.trace_add("write", self._on_busqueda)
         self.search_entry = ctk.CTkEntry(
@@ -638,7 +638,7 @@ class App(ctk.CTk):
         self.chips_frame.grid(row=2, column=0, sticky="ew", padx=12, pady=4)
 
         ctk.CTkLabel(self.chips_frame, text="Continente:", font=("Helvetica", 11),
-                        text_color=TEXTO_MUTED).pack(side="left", padx=(4, 8))
+                     text_color=TEXTO_MUTED).pack(side="left", padx=(4, 8))
 
         self.chip_buttons = {}
         opciones = ["Todos"] + CONTINENTES
@@ -674,17 +674,17 @@ class App(ctk.CTk):
         style = ttk.Style()
         style.theme_use("default")
         style.configure("Custom.Treeview",
-                            background=BG_MAIN, foreground=TEXTO,
-                            rowheight=36, fieldbackground=BG_MAIN,
-                            borderwidth=0, font=("Helvetica", 12))
+                         background=BG_MAIN, foreground=TEXTO,
+                         rowheight=36, fieldbackground=BG_MAIN,
+                         borderwidth=0, font=("Helvetica", 12))
         style.configure("Custom.Treeview.Heading",
-                            background=BG_SEC, foreground=TEXTO_MUTED,
-                            font=("Helvetica", 11, "bold"), borderwidth=0, relief="flat")
+                         background=BG_SEC, foreground=TEXTO_MUTED,
+                         font=("Helvetica", 11, "bold"), borderwidth=0, relief="flat")
         style.map("Custom.Treeview",
-                    background=[("selected", "#DDE9F5")],
-                    foreground=[("selected", TEXTO)])
+                  background=[("selected", "#DDE9F5")],
+                  foreground=[("selected", TEXTO)])
         style.map("Custom.Treeview.Heading",
-                    background=[("active", BORDE)])
+                  background=[("active", BORDE)])
 
         columnas = ("nombre", "continente", "poblacion", "superficie")
         self.tabla = ttk.Treeview(
