@@ -120,5 +120,5 @@ Las filas con formato inválido se omiten con advertencia, sin interrumpir la ca
 ## Links
 
 - 📁 Repositorio GitHub: `[URL del repositorio]`
-- 🎥 Video demostración: `[URL del video]`
-- 📄 Documentación PDF: `[URL del PDF o archivo en el repo]`
+- 🎥 Video demostración: `https://youtu.be/emF1itbxroM`
+- 📄 Documentación PDF: `https://github.com/felipipee/TPI-UTN-FRM-Trabajo-Final/blob/main/GeoData%20-%20Documentaci%C3%B3n%20TPI%20Programaci%C3%B3n%201%20UTN.docx`
